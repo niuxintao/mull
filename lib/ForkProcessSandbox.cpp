@@ -152,6 +152,10 @@ mull::ForkProcessSandbox::run(std::function<ExecutionStatus(void)> function,
       result.status = AbnormalExit;
     }
 
+    else if (WIFEXITED(status) && WEXITSTATUS(status) == MullExitCode) {
+      result.status = Passed;
+    }
+
     return result;
   }
 }

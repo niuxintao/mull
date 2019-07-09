@@ -35,9 +35,12 @@ void OriginalTestExecutionTask::operator()(iterator begin, iterator end,
     if (testExecutionResult.status == Passed) {
       testees = instrumentation.getTestees(test, filter, config.maxDistance);
     } else {
-      auto ssss = test.getTestName() +
-                  " failed: " + testExecutionResult.getStatusAsString() + "\n";
-      errs() << ssss;
+//      auto ssss = test.getTestName() +
+//                  " failed: " + testExecutionResult.getStatusAsString() + "\n";
+      errs() << "\n";
+      errs() << "STATUS: " << testExecutionResult.getStatusAsString() + "\n";
+      errs() << "STDERR: " << testExecutionResult.stderrOutput + "\n";
+      errs() << "STDOUT: " << testExecutionResult.stdoutOutput + "\n";
     }
     instrumentation.cleanupInstrumentationInfo(test);
 
