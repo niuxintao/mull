@@ -96,8 +96,10 @@ else()
 
   if (MULL_BUILD_32_BITS)
     set (LLVM_BUILD_32_BITS ON CACHE BOOL "Forcing LLVM to be built for 32 bits as well" FORCE)
+    set (EBC_BUILD_32_BITS ON CACHE BOOL "Forcing LibEBC to be built for 32 bits as well" FORCE)
   endif()
   set (LLVM_ENABLE_PROJECTS "clang" CACHE BOOL "Build only Clang when building against monorepo" FORCE)
+  set (LLVM_TARGETS_TO_BUILD "host" CACHE STRING "Do not build targets we cannot JIT" FORCE)
 
   add_subdirectory(${PATH_TO_LLVM} llvm-build-dir)
 
