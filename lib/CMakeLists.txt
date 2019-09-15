@@ -59,6 +59,7 @@ set(mull_sources
   Reporters/SourceManager.cpp
   Reporters/SQLiteReporter.cpp
   Reporters/TimeReporter.cpp
+  Reporters/SourceCodeReporter.cpp
   SourceLocation.cpp
 
   Parallelization/Progress.cpp

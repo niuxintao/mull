@@ -32,6 +32,7 @@
 #include "mull/Sandbox/ProcessSandbox.h"
 #include "mull/TestFrameworks/TestFrameworkFactory.h"
 #include "mull/Version.h"
+#include <mull/Reporters/SourceCodeReporter.h>
 
 /// Temp includes to make it running
 
@@ -400,6 +401,9 @@ int main(int argc, char **argv) {
   for (auto &reporter : reporters) {
     reporter->reportResults(*result, rawConfig, metrics);
   }
+
+  mull::SourceCodeReporter sourceCodeReporter(astStorage);
+  sourceCodeReporter.reportResults(*result, rawConfig, metrics);
 
   llvm::llvm_shutdown();
 
