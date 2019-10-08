@@ -74,7 +74,7 @@ std::string Bitcode::getMutatedUniqueIdentifier() const {
   }
 
   std::vector<std::string> mutationPointsIds;
-  for (auto mutationPair : mutationPoints) {
+  for (const auto& mutationPair : mutationPoints) {
     for (auto point : mutationPair.second) {
       mutationPointsIds.push_back(point->getUniqueIdentifier());
     }
@@ -87,7 +87,7 @@ std::string Bitcode::getMutatedUniqueIdentifier() const {
     hasher.update(id);
   }
 
-  MD5::MD5Result hash;
+  MD5::MD5Result hash{};
   hasher.final(hash);
   SmallString<32> result;
   MD5::stringifyResult(hash, result);

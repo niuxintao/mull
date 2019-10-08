@@ -13,7 +13,6 @@ using namespace mull;
 using namespace llvm;
 
 class DeclVisitor : public clang::RecursiveASTVisitor<DeclVisitor> {
-
 public:
   DeclVisitor(clang::SourceManager &sourceManager,
               std::vector<clang::Decl *> &decls)

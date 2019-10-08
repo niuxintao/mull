@@ -14,6 +14,7 @@ namespace mull {
 
 std::vector<int> taskBatches(size_t itemsCount, size_t tasks);
 void printTimeSummary(MetricsMeasure measure);
+void printMemorySummary();
 
 template <typename Task> class TaskExecutor {
 public:
@@ -35,6 +36,7 @@ public:
     }
     measure.finish();
     printTimeSummary(measure);
+    printMemorySummary();
   }
 
 private:
@@ -118,6 +120,7 @@ public:
     reporter.printProgress(total, total, forceReport);
     measure.finish();
     printTimeSummary(measure);
+    printMemorySummary();
   }
 
 private:
