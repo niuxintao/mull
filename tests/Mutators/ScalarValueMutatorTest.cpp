@@ -22,7 +22,9 @@ TEST(ScalarValueMutator, getMutationPoint) {
   FunctionUnderTest functionUnderTest(
       bitcode->getModule()->getFunction("scalar_value"), nullptr, 0);
   functionUnderTest.selectInstructions({});
-  auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+  NoASTInformation astInformation;
+  auto mutants =
+      mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
 
   ASSERT_EQ(mutants.size(), 4U);
 

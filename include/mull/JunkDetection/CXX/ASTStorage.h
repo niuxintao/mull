@@ -16,6 +16,7 @@ class MutationPoint;
 class ThreadSafeASTUnit {
 public:
   explicit ThreadSafeASTUnit(clang::ASTUnit *ast);
+  explicit ThreadSafeASTUnit(std::unique_ptr<clang::ASTUnit> ast);
 
   clang::SourceManager &getSourceManager();
   clang::ASTContext &getASTContext();
@@ -41,6 +42,7 @@ public:
   ASTStorage(const std::string &cxxCompilationDatabasePath,
              const std::string &cxxCompilationFlags);
 
+  ThreadSafeASTUnit *findASTByPath(const std::string &sourceFile);
   ThreadSafeASTUnit *findAST(const MutationPoint *point);
 
   clang::Expr *getMutantASTNode(MutationPoint *mutationPoint);

@@ -28,7 +28,9 @@ TEST(NegateConditionMutator, getMutationPoints_no_filter) {
   NegateConditionMutator mutator;
   FunctionUnderTest functionUnderTest(function, nullptr, 0);
   functionUnderTest.selectInstructions({});
-  auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+  NoASTInformation astInformation;
+  auto mutants =
+      mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
 
   EXPECT_EQ(1U, mutants.size());
   EXPECT_EQ(0, mutants[0]->getAddress().getFnIndex());

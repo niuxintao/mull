@@ -2,13 +2,20 @@
 #include "mull/MutationPoint.h"
 #include "mull/SourceLocation.h"
 
-#include <cassert>
+#include <llvm/IR/Module.h>
+
 #include <llvm/Support/raw_ostream.h>
+
+#include <cassert>
 
 using namespace mull;
 
 bool FilePathFilter::shouldSkip(MutationPoint *point) {
   return shouldSkip(point->getSourceLocation());
+}
+
+bool FilePathFilter::shouldSkip(llvm::Module *module) const {
+  return shouldSkip(module->getSourceFileName());
 }
 
 bool FilePathFilter::shouldSkip(llvm::Function *function) {

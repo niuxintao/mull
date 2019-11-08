@@ -31,7 +31,12 @@ TEST(MutationPoint, AndOrReplacementMutator_applyMutation) {
   FunctionUnderTest functionUnderTest(
       bitcode->getModule()->getFunction("testee_AND_operator_2branches"),
       nullptr, 0);
-  auto mutationPoints = mutator.getMutations(bitcode.get(), functionUnderTest);
+
+  std::vector<InstructionFilter *> filters;
+  functionUnderTest.selectInstructions(filters);
+  NoASTInformation astInformation;
+  auto mutationPoints =
+      mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
 
   ASSERT_EQ(1U, mutationPoints.size());
 
@@ -54,7 +59,9 @@ TEST(MutationPoint, ScalarValueMutator_applyMutation) {
   FunctionUnderTest functionUnderTest(
       bitcode->getModule()->getFunction("scalar_value"), nullptr, 0);
   functionUnderTest.selectInstructions({});
-  auto mutationPoints = mutator.getMutations(bitcode.get(), functionUnderTest);
+  NoASTInformation astInformation;
+  auto mutationPoints =
+      mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
 
   ASSERT_EQ(4U, mutationPoints.size());
 
@@ -92,7 +99,9 @@ TEST(MutationPoint, ReplaceCallMutator_applyMutation) {
   FunctionUnderTest functionUnderTest(
       bitcode->getModule()->getFunction("replace_call"), nullptr, 0);
   functionUnderTest.selectInstructions({});
-  auto mutationPoints = mutator.getMutations(bitcode.get(), functionUnderTest);
+  NoASTInformation astInformation;
+  auto mutationPoints =
+      mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
 
   ASSERT_EQ(1U, mutationPoints.size());
 
@@ -118,7 +127,9 @@ TEST(MutationPoint, OriginalValuePresent) {
   FunctionUnderTest functionUnderTest(
       bitcode->getModule()->getFunction("replace_assignment"), nullptr, 0);
   functionUnderTest.selectInstructions({});
-  auto mutationPoints = mutator.getMutations(bitcode.get(), functionUnderTest);
+  NoASTInformation astInformation;
+  auto mutationPoints =
+      mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
 
   ASSERT_EQ(2U, mutationPoints.size());
 

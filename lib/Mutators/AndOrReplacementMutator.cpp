@@ -591,21 +591,26 @@ AND_OR_MutationType AndOrReplacementMutator::findPossibleMutationInBranch(
 
 std::vector<MutationPoint *>
 AndOrReplacementMutator::getMutations(Bitcode *bitcode,
-                                      const FunctionUnderTest &function) {
+                                      const FunctionUnderTest &function,
+                                      const ASTInformation &astInformation) {
   assert(bitcode);
 
   std::vector<MutationPoint *> mutations;
 
-  for (auto &instruction : instructions(function.getFunction())) {
-    AND_OR_MutationType mutationType = findPossibleMutation(instruction);
-    if (mutationType == AND_OR_MutationType_None) {
+  for (auto instruction : function.getSelectedInstructions()) {
+    if (astInformation.validMutation(*instruction, mutatorKind()) == false) {
+      continue;
+    }
+
+    AND_OR_MutationType andOrMutationType = findPossibleMutation(*instruction);
+    if (andOrMutationType == AND_OR_MutationType_None) {
       continue;
     }
 
     std::string diagnostics = "AND-OR Replacement";
-    std::string replacement = getMutationTypeToString(mutationType);
+    std::string replacement = getMutationTypeToString(andOrMutationType);
 
-    auto point = new MutationPoint(this, nullptr, &instruction, replacement,
+    auto point = new MutationPoint(this, nullptr, instruction, replacement,
                                    bitcode, diagnostics);
     mutations.push_back(point);
   }

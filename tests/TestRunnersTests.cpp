@@ -51,7 +51,9 @@ TEST(NativeTestRunner, runTest) {
 
   std::vector<std::unique_ptr<Mutator>> mutators;
   mutators.emplace_back(make_unique<cxx::AddToSub>());
-  MutationsFinder mutationsFinder(std::move(mutators), configuration);
+  NoASTInformation astInformation;
+  MutationsFinder mutationsFinder(std::move(mutators), configuration,
+                                  astInformation);
 
   Function *reachableFunction = program.lookupDefinedFunction("count_letters");
   std::vector<std::unique_ptr<ReachableFunction>> reachableFunctions;

@@ -7,6 +7,8 @@
 #include <unistd.h>
 
 #include "DynamicLibraries.h"
+
+#include "mull/AST/ASTFinder.h"
 #include "mull/Parallelization/Tasks/LoadBitcodeFromBinaryTask.h"
 #include "mull/Config/Configuration.h"
 #include "mull/Config/ConfigurationOptions.h"
@@ -22,6 +24,7 @@
 #include "mull/Parallelization/Parallelization.h"
 #include "mull/Program/Program.h"
 #include "mull/Reporters/ASTSourceInfoProvider.h"
+#include "mull/Reporters/ASTWhitelistSourceInfoProvider.h"
 #include "mull/Reporters/IDEReporter.h"
 #include "mull/Reporters/MutationTestingElementsReporter.h"
 #include "mull/Reporters/SQLiteReporter.h"
@@ -150,9 +153,9 @@ llvm::cl::list<std::string> ExcludePaths(
     llvm::cl::cat(MullCXXCategory));
 
 llvm::cl::list<std::string> IncludePaths(
-  "include-path", llvm::cl::ZeroOrMore,
-  llvm::cl::desc("File/directory paths to whitelist (supports regex)"),
-  llvm::cl::cat(MullCXXCategory));
+    "include-path", llvm::cl::ZeroOrMore,
+    llvm::cl::desc("File/directory paths to whitelist (supports regex)"),
+    llvm::cl::cat(MullCXXCategory));
 
 #if LLVM_VERSION_MAJOR == 3
 #define TRAILING_NULL , nullptr
@@ -167,6 +170,16 @@ llvm::cl::opt<SandboxType> SandboxOption(
                      clEnumVal(Watchdog, "Uses 4 processes, not recommended"),
                      clEnumVal(Timer, "Fastest, Recommended") TRAILING_NULL),
     llvm::cl::cat(MullCXXCategory), llvm::cl::init(Timer));
+
+llvm::cl::opt<bool> EnableAST(
+    "enable-ast", llvm::cl::Optional,
+    llvm::cl::desc("Enable \"white\" AST search (disabled by default)"),
+    llvm::cl::cat(MullCXXCategory), llvm::cl::init(false));
+
+llvm::cl::opt<bool> EnableJunk(
+    "enable-junk", llvm::cl::Optional,
+    llvm::cl::desc("Enable \"black\" AST search (disabled by default)"),
+    llvm::cl::cat(MullCXXCategory), llvm::cl::init(false));
 
 enum ReporterType { IDE, SQLite, Elements };
 llvm::cl::list<ReporterType> ReporterOption(
@@ -295,12 +308,11 @@ int main(int argc, char **argv) {
     junkDetectionEnabled = true;
   }
   mull::ASTStorage astStorage(cxxCompilationDatabasePath, cxxCompilationFlags);
-  mull::ASTSourceInfoProvider sourceInfoProvider(astStorage);
+
+  //mull::ASTSourceInfoProvider sourceInfoProvider(astStorage);
+
   mull::CXXJunkDetector junkDetector(astStorage);
   mull::JunkMutationFilter junkFilter(junkDetector);
-
-  mull::MutationsFinder mutationsFinder(mutatorsOptions.mutators(),
-                                        configuration);
 
   mull::Metrics metrics;
 
@@ -309,13 +321,15 @@ int main(int argc, char **argv) {
   mull::Filters filters;
 
   mull::NoDebugInfoFilter noDebugInfoFilter;
-  filters.mutationFilters.push_back(&noDebugInfoFilter);
-  filters.functionFilters.push_back(&noDebugInfoFilter);
-  filters.instructionFilters.push_back(&noDebugInfoFilter);
-
   mull::FilePathFilter filePathFilter;
+
+  filters.mutationFilters.push_back(&noDebugInfoFilter);
   filters.mutationFilters.push_back(&filePathFilter);
+
+  filters.functionFilters.push_back(&noDebugInfoFilter);
   filters.functionFilters.push_back(&filePathFilter);
+
+  filters.instructionFilters.push_back(&noDebugInfoFilter);
 
   for (const auto &regex : ExcludePaths) {
     filePathFilter.exclude(regex);
@@ -324,9 +338,37 @@ int main(int argc, char **argv) {
     filePathFilter.include(regex);
   }
 
-  if (junkDetectionEnabled) {
+  if (EnableJunk) {
     filters.mutationFilters.push_back(&junkFilter);
   }
+
+  /// AST Search
+  std::unique_ptr<mull::SourceInfoProvider> sourceInfoProvider;
+
+  /// TODO: STAN
+  mull::ASTMutations astMutations;
+  mull::RealASTInformation astInformation(astMutations, filePathFilter);
+
+  if (EnableAST) {
+    std::vector<mull::MutatorKind> mutationKinds;
+    for (auto &mutator : mutatorsOptions.mutators()) {
+      mutationKinds.push_back(mutator->mutatorKind());
+    }
+
+    mull::TraverseMask astTraverseMask =
+        mull::TraverseMask::create(mutationKinds);
+
+    mull::ASTFinder astFinder;
+    astMutations = astFinder.findMutations(
+        configuration, program, filePathFilter, astStorage, astTraverseMask);
+
+    sourceInfoProvider = std::unique_ptr<mull::ASTWhitelistSourceInfoProvider>(
+        new mull::ASTWhitelistSourceInfoProvider(astStorage, astMutations));
+  }
+
+  /// Finding mutations
+  mull::MutationsFinder mutationsFinder(mutatorsOptions.mutators(),
+                                        configuration, astInformation);
 
   mull::Driver driver(configuration, *sandbox, program, toolchain, filters,
                       mutationsFinder, metrics, testFramework);
@@ -339,22 +381,33 @@ int main(int argc, char **argv) {
     switch (ReporterOption[i]) {
     case IDE: {
       reporters.push_back(llvm::make_unique<mull::IDEReporter>());
-    } break;
+      break;
+    }
     case SQLite: {
       reporters.push_back(
           llvm::make_unique<mull::SQLiteReporter>(ReportDirectory, ReportName));
-    } break;
+      break;
+    }
     case Elements: {
-      if (junkDetectionEnabled) {
+      if (EnableAST) {
+        reporters.push_back(
+            llvm::make_unique<mull::MutationTestingElementsReporter>(
+                ReportDirectory, ReportName, *sourceInfoProvider));
+      } else if (EnableJunk) {
+        mull::ASTSourceInfoProvider sourceInfoProvider(astStorage);
+
         reporters.push_back(
             llvm::make_unique<mull::MutationTestingElementsReporter>(
                 ReportDirectory, ReportName, sourceInfoProvider));
       } else {
+        // TODO:
         mull::Logger::warn()
             << "The Mutation Testing Elements Reporter requires "
-               "the compilation database to be provided";
+               "at least one of the options provided: -enable-ast or "
+               "-enable-junk (or both)";
       }
-    } break;
+      break;
+    }
     }
   }
   if (reporters.empty()) {

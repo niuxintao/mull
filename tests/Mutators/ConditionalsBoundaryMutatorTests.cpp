@@ -15,10 +15,12 @@ TEST(Relational, LessThanToLessOrEqual) {
 
   cxx::LessThanToLessOrEqual mutator;
   std::vector<MutationPoint *> mutants;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto m = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto m =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(m.begin(), m.end(), std::back_inserter(mutants));
   }
 
@@ -33,10 +35,12 @@ TEST(Relational, LessOrEqualToLessThan) {
 
   cxx::LessOrEqualToLessThan mutator;
   std::vector<MutationPoint *> mutants;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto m = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto m =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(m.begin(), m.end(), std::back_inserter(mutants));
   }
 
@@ -51,10 +55,12 @@ TEST(Relational, GreaterThanToGreaterOrEqual) {
 
   cxx::GreaterThanToGreaterOrEqual mutator;
   std::vector<MutationPoint *> mutants;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto m = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto m =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(m.begin(), m.end(), std::back_inserter(mutants));
   }
 
@@ -69,10 +75,12 @@ TEST(Relational, GreaterOrEqualToGreaterThan) {
 
   cxx::GreaterOrEqualToGreaterThan mutator;
   std::vector<MutationPoint *> mutants;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto m = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto m =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(m.begin(), m.end(), std::back_inserter(mutants));
   }
 

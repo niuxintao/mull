@@ -9,6 +9,10 @@
 #include <unordered_map>
 #include <vector>
 
+namespace llvm {
+  class Module;
+}
+
 namespace mull {
 class SourceLocation;
 
@@ -17,15 +21,16 @@ class FilePathFilter : public MutationFilter,
                        public InstructionFilter {
 public:
   bool shouldSkip(MutationPoint *point) override;
+  bool shouldSkip(llvm::Module *module) const;
   bool shouldSkip(llvm::Function *function) override;
   bool shouldSkip(llvm::Instruction *instruction) const override;
+  bool shouldSkip(const std::string &sourceFilePath) const;
+
   std::string name() override;
   void exclude(const std::string &filter);
   void include(const std::string &filter);
-
 private:
   bool shouldSkip(const mull::SourceLocation &location) const;
-  bool shouldSkip(const std::string &sourceFilePath) const;
 
   std::vector<std::regex> includeFilters;
   std::vector<std::regex> excludeFilters;

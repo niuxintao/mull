@@ -20,10 +20,12 @@ TEST(NoDebugInfoFilter, withDebugInfo) {
   std::vector<MutationPoint *> points;
 
   cxx::AddToSub mutator;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto mutants =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 
@@ -49,10 +51,12 @@ TEST(NoDebugInfoFilter, withouDebugInfo) {
 
   std::vector<MutationPoint *> points;
   cxx::AddToSub mutator;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto mutants =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 
@@ -78,10 +82,12 @@ TEST(FilePathFilter, doesNotFilterEmpty) {
 
   std::vector<MutationPoint *> points;
   cxx::AddToSub mutator;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto mutants =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 
@@ -107,10 +113,12 @@ TEST(FilePathFilter, doesNotFilterMismatch) {
 
   std::vector<MutationPoint *> points;
   cxx::AddToSub mutator;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto mutants =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 
@@ -137,10 +145,12 @@ TEST(FilePathFilter, filtersPlainString) {
 
   std::vector<MutationPoint *> points;
   cxx::AddToSub mutator;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto mutants =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 
@@ -167,10 +177,12 @@ TEST(FilePathFilter, filtersWithRegex) {
 
   std::vector<MutationPoint *> points;
   cxx::AddToSub mutator;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants = mutator.getMutations(bitcode.get(), functionUnderTest);
+    auto mutants =
+        mutator.getMutations(bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 

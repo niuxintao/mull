@@ -12,8 +12,9 @@ using namespace mull;
 using namespace llvm;
 
 SearchMutationPointsTask::SearchMutationPointsTask(
-    const Program &program, std::vector<std::unique_ptr<Mutator>> &mutators)
-    : program(program), mutators(mutators) {}
+    const Program &program, std::vector<std::unique_ptr<Mutator>> &mutators,
+    const ASTInformation &astInformation)
+    : program(program), mutators(mutators), astInformation(astInformation) {}
 
 void SearchMutationPointsTask::operator()(iterator begin, iterator end,
                                           Out &storage,
@@ -24,8 +25,12 @@ void SearchMutationPointsTask::operator()(iterator begin, iterator end,
     auto moduleID = function->getParent()->getModuleIdentifier();
     Bitcode *bitcode = program.bitcodeWithIdentifier(moduleID);
 
+    std::string fileName =
+        functionUnderTest.getFunction()->getParent()->getSourceFileName();
+
     for (auto &mutator : mutators) {
-      auto mutants = mutator->getMutations(bitcode, functionUnderTest);
+      auto mutants =
+          mutator->getMutations(bitcode, functionUnderTest, astInformation);
       for (auto mutant : mutants) {
         for (auto &reachableTest : functionUnderTest.getReachableTests()) {
           mutant->addReachableTest(reachableTest.first, reachableTest.second);

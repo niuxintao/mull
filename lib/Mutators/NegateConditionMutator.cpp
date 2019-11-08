@@ -61,12 +61,17 @@ void NegateConditionMutator::applyMutation(llvm::Function *function,
 
 std::vector<MutationPoint *>
 NegateConditionMutator::getMutations(Bitcode *bitcode,
-                                     const FunctionUnderTest &function) {
+                                     const FunctionUnderTest &function,
+                                     const ASTInformation &astInformation) {
   assert(bitcode);
 
   std::vector<MutationPoint *> mutations;
 
   for (llvm::Instruction *instruction : function.getSelectedInstructions()) {
+    if (astInformation.validMutation(*instruction, mutatorKind()) == false) {
+      continue;
+    }
+
     for (auto &mutator : lowLevelMutators) {
       if (mutator->canMutate(instruction)) {
 

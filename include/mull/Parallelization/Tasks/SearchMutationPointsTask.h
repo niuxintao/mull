@@ -16,13 +16,15 @@ public:
   using iterator = In::iterator;
 
   SearchMutationPointsTask(const Program &program,
-                           std::vector<std::unique_ptr<Mutator>> &mutators);
+                           std::vector<std::unique_ptr<Mutator>> &mutators,
+                           const ASTInformation &astInformation);
   void operator()(iterator begin, iterator end, Out &storage,
                   progress_counter &counter);
 
 private:
   const Program &program;
   std::vector<std::unique_ptr<Mutator>> &mutators;
+  const ASTInformation &astInformation;
 };
 
 } // namespace mull

@@ -70,6 +70,7 @@ public:
                      irm::IRMutation *lowLevelMutation) override;
 
   std::vector<MutationPoint *>
-  getMutations(Bitcode *bitcode, const FunctionUnderTest &function) override;
+  getMutations(Bitcode *bitcode, const FunctionUnderTest &function,
+               const ASTInformation &astInformation) override;
 };
 } // namespace mull

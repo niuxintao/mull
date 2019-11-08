@@ -50,11 +50,12 @@ TEST_P(CXXJunkDetectorTest, detectJunk) {
   auto bitcode = loader.loadBitcodeAtPath(parameter.bitcodePath, context);
 
   std::vector<MutationPoint *> points;
+  NoASTInformation astInformation;
   for (auto &function : bitcode->getModule()->functions()) {
     FunctionUnderTest functionUnderTest(&function, nullptr, 0);
     functionUnderTest.selectInstructions({});
-    auto mutants =
-        parameter.mutator->getMutations(bitcode.get(), functionUnderTest);
+    auto mutants = parameter.mutator->getMutations(
+        bitcode.get(), functionUnderTest, astInformation);
     std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
   }
 
@@ -196,11 +197,13 @@ TEST(CXXJunkDetector, compdb_absolute_paths) {
   mutators.emplace_back(new cxx::LessThanToLessOrEqual);
   mutators.emplace_back(new cxx::GreaterOrEqualToGreaterThan);
   mutators.emplace_back(new cxx::GreaterThanToGreaterOrEqual);
+  NoASTInformation astInformation;
   for (auto &mutator : mutators) {
     for (auto &function : bitcode->getModule()->functions()) {
       FunctionUnderTest functionUnderTest(&function, nullptr, 0);
       functionUnderTest.selectInstructions({});
-      auto mutants = mutator->getMutations(bitcode.get(), functionUnderTest);
+      auto mutants = mutator->getMutations(bitcode.get(), functionUnderTest,
+                                           astInformation);
       std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
     }
   }
@@ -236,10 +239,12 @@ TEST(CXXJunkDetector, DISABLED_compdb_relative_paths) {
   mutators.emplace_back(new cxx::GreaterOrEqualToGreaterThan);
   mutators.emplace_back(new cxx::GreaterThanToGreaterOrEqual);
 
+  NoASTInformation astInformation;
   for (auto &mutator : mutators) {
     for (auto &function : bitcode->getModule()->functions()) {
       FunctionUnderTest functionUnderTest(&function, nullptr, 0);
-      auto mutants = mutator->getMutations(bitcode.get(), functionUnderTest);
+      auto mutants = mutator->getMutations(bitcode.get(), functionUnderTest,
+                                           astInformation);
       std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
     }
   }
@@ -275,11 +280,13 @@ TEST(CXXJunkDetector, no_compdb) {
   mutators.emplace_back(new cxx::GreaterOrEqualToGreaterThan);
   mutators.emplace_back(new cxx::GreaterThanToGreaterOrEqual);
 
+  NoASTInformation astInformation;
   for (auto &mutator : mutators) {
     for (auto &function : bitcode->getModule()->functions()) {
       FunctionUnderTest functionUnderTest(&function, nullptr, 0);
       functionUnderTest.selectInstructions({});
-      auto mutants = mutator->getMutations(bitcode.get(), functionUnderTest);
+      auto mutants = mutator->getMutations(bitcode.get(), functionUnderTest,
+                                           astInformation);
       std::copy(mutants.begin(), mutants.end(), std::back_inserter(points));
     }
   }

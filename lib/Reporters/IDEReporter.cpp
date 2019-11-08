@@ -62,9 +62,9 @@ void IDEReporter::reportResults(const Result &result, const Metrics &metrics) {
 
   SourceManager sourceManager;
   for (auto mutant : result.getMutationPoints()) {
-    if (killedMutants.find(mutant) == killedMutants.end()) {
+    //if (killedMutants.find(mutant) == killedMutants.end()) {
       printSurvivedMutant(sourceManager, *mutant);
-    }
+    //}
   }
 
   auto rawScore =

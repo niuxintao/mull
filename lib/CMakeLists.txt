@@ -2,6 +2,14 @@ add_subdirectory(Mutators/CXX)
 
 set(mull_sources
   Driver.cpp
+
+  AST/ASTFinder.cpp
+  AST/ASTInformation.cpp
+  AST/ASTMutations.cpp
+  AST/ASTTypes.cpp
+  AST/ASTSearchTask.cpp
+  AST/ASTVisitor.cpp
+
   Sandbox/ProcessSandbox.cpp
   Logger.cpp
   BitcodeLoader.cpp
@@ -50,6 +58,7 @@ set(mull_sources
   JunkDetection/CXX/CXXJunkDetector.cpp
 
   Reporters/ASTSourceInfoProvider.cpp
+  Reporters/ASTWhitelistSourceInfoProvider.cpp
   Reporters/SourceManager.cpp
   Reporters/SQLiteReporter.cpp
   Reporters/TimeReporter.cpp

@@ -35,7 +35,8 @@ public:
                      irm::IRMutation *lowLevelMutation) override;
 
   std::vector<MutationPoint *>
-  getMutations(Bitcode *bitcode, const FunctionUnderTest &function) override;
+  getMutations(Bitcode *bitcode, const FunctionUnderTest &function,
+               const ASTInformation &astInformation) override;
 
 private:
   std::vector<std::unique_ptr<irm::IRMutation>> lowLevelMutators;

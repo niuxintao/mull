@@ -1,4 +1,3 @@
-
 #include "mull/Config/Configuration.h"
 
 namespace mull {

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Mutator.h"
+#include "mull/AST/ASTInformation.h"
+#include "mull/Mutators/Mutator.h"
+#include "mull/ReachableFunction.h"
+
 #include <irm/irm.h>
 #include <memory>
-#include <mull/ReachableFunction.h>
 #include <vector>
 
 namespace llvm {
@@ -37,7 +39,8 @@ public:
                      irm::IRMutation *lowLevelMutation) override;
 
   std::vector<MutationPoint *>
-  getMutations(Bitcode *bitcode, const FunctionUnderTest &function) override;
+  getMutations(Bitcode *bitcode, const FunctionUnderTest &function,
+               const ASTInformation &astInformation) override;
 
 private:
   std::vector<std::unique_ptr<irm::IRMutation>> lowLevelMutators;
