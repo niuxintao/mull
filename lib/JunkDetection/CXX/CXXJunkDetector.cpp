@@ -148,6 +148,8 @@ bool CXXJunkDetector::isJunk(MutationPoint *point) {
     return isJunkMutation<cxx::LogicalAndVisitor>(astStorage, point);
   case MutatorKind::CXX_Logical_OrToAnd:
     return isJunkMutation<cxx::LogicalOrVisitor>(astStorage, point);
+  case MutatorKind::CXX_Logical_Negation:
+    return isJunkMutation<cxx::NegationVisitor>(astStorage, point);
 
   default:
     return true;

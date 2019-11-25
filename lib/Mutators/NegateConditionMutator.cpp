@@ -9,17 +9,13 @@ using namespace mull;
 
 const std::string NegateConditionMutator::ID = "negate_mutator";
 const std::string NegateConditionMutator::description =
-    "Negates conditionals !x to x and x to !x";
+    "Negates conditionals x to !x";
 
 NegateConditionMutator::NegateConditionMutator() : lowLevelMutators() {
   /// == -> !=
   lowLevelMutators.push_back(llvm::make_unique<irm::ICMP_EQToICMP_NE>());
   lowLevelMutators.push_back(llvm::make_unique<irm::FCMP_OEQToFCMP_ONE>());
   lowLevelMutators.push_back(llvm::make_unique<irm::FCMP_UEQToFCMP_UNE>());
-  /// != -> ==
-  lowLevelMutators.push_back(llvm::make_unique<irm::ICMP_NEToICMP_EQ>());
-  lowLevelMutators.push_back(llvm::make_unique<irm::FCMP_ONEToFCMP_OEQ>());
-  lowLevelMutators.push_back(llvm::make_unique<irm::FCMP_UNEToFCMP_UEQ>());
 }
 
 static std::string describePredicate(CmpInst::Predicate predicate) {
@@ -80,7 +76,7 @@ NegateConditionMutator::getMutations(Bitcode *bitcode,
         std::string replacement = describePredicate(cmpMutator->_getTo());
 
         auto point = new MutationPoint(this, mutator.get(), instruction,
-                                       replacement, bitcode, diagnostics);
+                                       "replacement", bitcode, "Replaced x with !x");
         mutations.push_back(point);
       }
     }

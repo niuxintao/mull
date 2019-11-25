@@ -10,6 +10,7 @@
 #include <mull/Mutators/CXX/AndToOrMutator.h>
 #include <mull/Mutators/CXX/ArithmeticMutators.h>
 #include <mull/Mutators/CXX/BitwiseMutators.h>
+#include <mull/Mutators/CXX/LogicalMutators.h>
 #include <mull/Mutators/CXX/NumberMutators.h>
 #include <mull/Mutators/CXX/OrToAndMutator.h>
 #include <mull/Mutators/CXX/RelationalMutators.h>
@@ -129,8 +130,8 @@ static const CXXJunkDetectorTestParameter parameters[] = {
   CXXJunkDetectorTestParameter(fixtures::mutators_bitwise_bitops_bc_path(),
                                new cxx::XorAssignToOrAssign, 3),
 
-  CXXJunkDetectorTestParameter(fixtures::mutators_negate_condition_junk_bc_path(),
-                               new NegateConditionMutator, 6),
+//  CXXJunkDetectorTestParameter(fixtures::mutators_negate_condition_junk_bc_path(),
+//                               new NegateConditionMutator, 6),
 
   CXXJunkDetectorTestParameter(fixtures::mutators_negate_condition_junk_bc_path(),
                                new cxx::EqualToNotEqual, 3),
@@ -153,9 +154,10 @@ static const CXXJunkDetectorTestParameter parameters[] = {
 
   CXXJunkDetectorTestParameter(fixtures::mutators_and_or_and_to_or_replacement_cpp_junk_bc_path(),
                                new AndToOrMutator, 2),
-
   CXXJunkDetectorTestParameter(fixtures::mutators_and_or_or_to_and_replacement_cpp_junk_bc_path(),
                                new OrToAndMutator, 2),
+  CXXJunkDetectorTestParameter(fixtures::mutators_negate_condition_junk_bc_path(),
+                               new cxx::Negation, 2),
 
   CXXJunkDetectorTestParameter(fixtures::mutators_scalar_value_junk_bc_path(),
                                new ScalarValueMutator, 5),

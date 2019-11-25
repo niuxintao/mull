@@ -30,6 +30,7 @@ enum class MutatorKind {
 
   CXX_Logical_AndToOr,
   CXX_Logical_OrToAnd,
+  CXX_Logical_Negation,
 
   CXX_Arithmetic_AddToSub,
   CXX_Arithmetic_AddAssignToSubAssign,
