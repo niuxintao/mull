@@ -4,6 +4,7 @@
 #include <clang/Basic/Version.h>
 
 #include <gtest/gtest.h>
+#include <llvm/Support/raw_ostream.h>
 
 using namespace mull;
 
@@ -45,6 +46,9 @@ TEST(CompilationDatabaseFromCompilationFlags, cleansUpFlags) {
                                        CompilationDatabase::Flags(flags));
 
     const auto &compilationFlags = database.compilationFlagsForFile(file);
+    for (auto &x : compilationFlags) {
+      llvm::errs() << x << "\n";
+    }
     ASSERT_EQ(compilationFlags.size(), size_t(0));
   }
 }
