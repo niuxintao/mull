@@ -5,6 +5,6 @@
 ; CHECK:{{^Version: \d+\.\d+.\d+$}}
 ; CHECK:{{^Commit: [a-h0-9]+$}}
 ; CHECK:{{^Date: .*$}}
-; CHECK:{{^LLVM: \d+\.\d+.\d+$}}
+; CHECK:{{^LLVM: \d+\.\d+.\d+}}
 ; CHECK-EMPTY:
 */
