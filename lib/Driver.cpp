@@ -56,7 +56,7 @@ std::unique_ptr<Result> Driver::Run() {
   auto filteredMutations = filterMutations(std::move(mutationPoints));
   auto mutationResults = runMutations(filteredMutations);
 
-  return make_unique<Result>(
+  return std::make_unique<Result>(
       std::move(tests), std::move(mutationResults), std::move(filteredMutations));
 }
 
