@@ -8,9 +8,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-#        LLVM_VERSION: [3.9.0, 4.0.0, 5.0.0, 6.0.0, 7.0.0, 8.0.0, 9.0.0]
+#        LLVM_VERSION: ["3.9", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0"]
 #        os: [ubuntu-18.04, macOS-10.15]
-        LLVM_VERSION: [9.0.0]
+        LLVM_VERSION: [ "9.0" ]
         os: [ubuntu-18.04]
 
     steps:
@@ -21,14 +21,14 @@ jobs:
         id: version
         run: |
           grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '
-          echo ::set-output name=version::`grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '`
+          echo ::set-output name=version::`grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '`.$GITHUB_RUN_ID
       - name: Run macOS
         if: matrix.os == 'macOS-10.15'
         run: |
           pip install ansible
           cd infrastructure && \
           ansible-playbook macos-playbook.yaml \
-            -e llvm_version=${{ matrix.LLVM_VERSION }} \
+            -e llvm_version="${{ matrix.LLVM_VERSION }}.0" \
             -e source_dir=$PWD/.. \
             -e gitref=$GITHUB_SHA \
             -e host=localhost \
@@ -44,14 +44,20 @@ jobs:
           sudo apt-get update
           cd infrastructure && \
           ansible-playbook ubuntu-playbook.yaml \
-            -e llvm_version=${{ matrix.LLVM_VERSION }} \
+            -e llvm_version="${{ matrix.LLVM_VERSION }}.0" \
             -e source_dir=$PWD/.. \
             -e gitref=$GITHUB_SHA \
             -e host=localhost \
-            -e skip_package=false \
+            -e mull_version=${{ steps.version.outputs.version }} \
             -e skip_tests=true \
             --verbose
       - name: Publish package
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-18.04' && matrix.LLVM_VERSION == '9.0'
         run: |
-          file infrastructure/packages/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb
+          curl --silent --show-error --fail --location --request PUT \
+            --upload-file infrastructure/packages/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb \
+            --user "alexdenisov:${{ secrets.BINTRAY_API_KEY }}" \
+            -H "X-Bintray-Debian-Distribution: nightly" \
+            -H "X-Bintray-Debian-Component: main" \
+            -H "X-Bintray-Debian-Architecture: amd64" \
+            "https://api.bintray.com/content/mull-project/ubuntu/mull/${{ steps.version.outputs.version }}/pull/main/m/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb;publish=1"
