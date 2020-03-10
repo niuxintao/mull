@@ -23,7 +23,7 @@ jobs:
             -H "X-Bintray-Debian-Distribution: latest" \
             -H "X-Bintray-Debian-Component: main" \
             -H "X-Bintray-Debian-Architecture: amd64" \
-            "https://api.bintray.com/content/mull-project/ubuntu/mull/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb;publish=1"
+            "https://api.bintray.com/content/mull-project/ubuntu/mull/0.6.2/pull/main/m/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb;publish=1"
 #      - name: Upload deb package to Bintray
 #        uses: bpicode/github-action-upload-bintray@master
 #        with:
