@@ -2,40 +2,52 @@ name: Example workflow yml
 
 on: [push]
 
-# https://github.com/mull-project/mull/releases/download/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
+#on:
+#  push:
+#    branches-ignore:
+#      - '**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Download package
+      - name: Detect Mull version
+        id: version
         run: |
-          wget -q https://github.com/mull-project/mull/releases/download/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb -O /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
-          chmod a+r /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
-          ls -l /tmp
-          file /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
-      - name: Upload package
+          grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '
+          echo ::set-output name=version::`grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '`
+      - name: Print Mull version
         run: |
-          curl --silent --show-error --fail --location --request PUT \
-            --upload-file /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb \
-            --user "alexdenisov:${{ secrets.BINTRAY_API_KEY }}" \
-            -H "X-Bintray-Debian-Distribution: latest" \
-            -H "X-Bintray-Debian-Component: main" \
-            -H "X-Bintray-Debian-Architecture: amd64" \
-            "https://api.bintray.com/content/mull-project/ubuntu/mull/0.6.2/pull/main/m/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb;publish=1"
-#      - name: Upload deb package to Bintray
-#        uses: bpicode/github-action-upload-bintray@master
-#        with:
-#          file: "/tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb"
-#          api_user: alexdenisov
-#          api_key: ${{ secrets.BINTRAY_API_KEY }}
-#          repository_user: mull-project
-#          repository: ubuntu
-#          package: mull
-#          version: '0.6.1'
-#          publish: 1
-#          calculate_metadata: true
-#          deb_distribution: latest
-#          deb_component: main
-#          deb_architecture: amd64
+          echo ${{ steps.version.outputs.version }}
+#
+#      - name: Download package
+#        run: |
+#          wget -q https://github.com/mull-project/mull/releases/download/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb -O /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
+#          chmod a+r /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
+#          ls -l /tmp
+#          file /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
+#      - name: Upload package
+#        run: |
+#          curl --silent --show-error --fail --location --request PUT \
+#            --upload-file /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb \
+#            --user "alexdenisov:${{ secrets.BINTRAY_API_KEY }}" \
+#            -H "X-Bintray-Debian-Distribution: latest" \
+#            -H "X-Bintray-Debian-Component: main" \
+#            -H "X-Bintray-Debian-Architecture: amd64" \
+#            "https://api.bintray.com/content/mull-project/ubuntu/mull/0.6.2/pull/main/m/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb;publish=1"
+##      - name: Upload deb package to Bintray
+##        uses: bpicode/github-action-upload-bintray@master
+##        with:
+##          file: "/tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb"
+##          api_user: alexdenisov
+##          api_key: ${{ secrets.BINTRAY_API_KEY }}
+##          repository_user: mull-project
+##          repository: ubuntu
+##          package: mull
+##          version: '0.6.1'
+##          publish: 1
+##          calculate_metadata: true
+##          deb_distribution: latest
+##          deb_component: main
+##          deb_architecture: amd64

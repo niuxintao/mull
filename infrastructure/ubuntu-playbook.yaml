@@ -60,4 +60,5 @@
 
     - name: Integration Tests
       include: helpers/integration-tests.yaml
+      when: not skip_tests
 
