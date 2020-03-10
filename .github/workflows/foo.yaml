@@ -18,7 +18,7 @@ jobs:
       - name: Upload deb package to Bintray
         uses: bpicode/github-action-upload-bintray@master
         with:
-          file: /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
+          file: "/tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb"
           api_user: alexdenisov
           api_key: ${{ secrets.BINTRAY_API_KEY }}
           repository_user: mull-project
