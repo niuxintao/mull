@@ -12,7 +12,7 @@ jobs:
       - name: Download package
         run: |
           wget https://github.com/mull-project/mull/releases/download/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb -O /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
-          ls /tmp
+          ls -l /tmp
           file /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
       - name: Upload deb package to Bintray
         uses: bpicode/github-action-upload-bintray@master
