@@ -1,11 +1,11 @@
 name: Example workflow yml
 
-on: [push]
+#on: [push]
 
-#on:
-#  push:
-#    branches-ignore:
-#      - '**'
+on:
+  push:
+    branches-ignore:
+      - '**'
 
 jobs:
   build:

@@ -1,6 +1,6 @@
 name: CI
 
-on: [pull_request]
+on: [push]
 
 jobs:
   test:
@@ -18,8 +18,10 @@ jobs:
         with:
           submodules: true
       - name: Detect Mull version
+        id: version
         run: |
-          file infrastructure/packages/Mull-0.6.1-LLVM-${{ matrix.LLVM_VERSION }}-${{ matrix.os }}.deb
+          grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '
+          echo ::set-output name=version::`grep -Eo "MULL_VERSION [0-9.]+" CMakeLists.txt | awk ' { print $2 } '`
       - name: Run macOS
         if: matrix.os == 'macOS-10.15'
         run: |
@@ -52,4 +54,4 @@ jobs:
       - name: Publish package
         if: matrix.os == 'ubuntu-18.04'
         run: |
-          file infrastructure/packages/Mull-0.6.1-LLVM-${{ matrix.LLVM_VERSION }}-${{ matrix.os }}.deb
+          file infrastructure/packages/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb
