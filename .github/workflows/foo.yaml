@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Download package
         run: |
-          wget https://github.com/mull-project/mull/releases/download/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb -O /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
+          wget -q https://github.com/mull-project/mull/releases/download/0.6.1/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb -O /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
           chmod a+r /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
           ls -l /tmp
           file /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
@@ -20,7 +20,7 @@ jobs:
         with:
           file: /tmp/Mull-0.6.1-LLVM-8.0-ubuntu-18.04.deb
           api_user: alexdenisov
-          api_key: ${{ secrets.BINTRAY_API_KEY }} # An API key can be obtained from the user profile page.
+          api_key: ${{ secrets.BINTRAY_API_KEY }}
           repository_user: mull-project
           repository: ubuntu
           package: mull
