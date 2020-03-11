@@ -9,9 +9,9 @@ jobs:
     strategy:
       matrix:
 #        LLVM_VERSION: ["3.9", "4.0", "5.0", "6.0", "7.0", "8.0", "9.0"]
-#        os: [ubuntu-18.04, macOS-10.15]
+        os: [ubuntu-18.04, macOS-10.15]
         LLVM_VERSION: [ "9.0" ]
-        os: [ubuntu-18.04]
+#        os: [ubuntu-18.04]
 
     steps:
       - uses: actions/checkout@v1
@@ -32,9 +32,8 @@ jobs:
             -e source_dir=$PWD/.. \
             -e gitref=$GITHUB_SHA \
             -e host=localhost \
-            -e skip_package=true \
-            -e skip_tests=false \
             -e SDKROOT=`xcrun -show-sdk-path` \
+            -e mull_version=${{ steps.version.outputs.version }} \
             --verbose
       - name: Run Ubuntu
         if: matrix.os == 'ubuntu-18.04'
@@ -49,15 +48,24 @@ jobs:
             -e gitref=$GITHUB_SHA \
             -e host=localhost \
             -e mull_version=${{ steps.version.outputs.version }} \
-            -e skip_tests=true \
             --verbose
-      - name: Publish package
+      - name: Publish package (Ubuntu)
         if: matrix.os == 'ubuntu-18.04' && matrix.LLVM_VERSION == '9.0'
         run: |
+          env
           curl --silent --show-error --fail --location --request PUT \
             --upload-file infrastructure/packages/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb \
             --user "alexdenisov:${{ secrets.BINTRAY_API_KEY }}" \
             -H "X-Bintray-Debian-Distribution: nightly" \
             -H "X-Bintray-Debian-Component: main" \
             -H "X-Bintray-Debian-Architecture: amd64" \
-            "https://api.bintray.com/content/mull-project/ubuntu/mull/${{ steps.version.outputs.version }}/pull/main/m/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb;publish=1"
+            "https://api.bintray.com/content/mull-project/ubuntu/mull-nightly/${{ steps.version.outputs.version }}/pull/main/m/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-ubuntu-18.04.deb;publish=1"
+      - name: Publish package (macOS)
+        if: matrix.os == 'macOS-10.15' && matrix.LLVM_VERSION == '9.0'
+        run: |
+          env
+          ls -l infrastructure/packages
+          curl --silent --show-error --fail --location --request PUT \
+            --upload-file infrastructure/packages/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-macOS-10.15.zip \
+            --user "alexdenisov:${{ secrets.BINTRAY_API_KEY }}" \
+            "https://api.bintray.com/content/mull-project/macos/mull-nightly/${{ steps.version.outputs.version }}/pull/main/m/Mull-${{ steps.version.outputs.version }}-LLVM-${{ matrix.LLVM_VERSION }}-macOS-10.15.zip;publish=1"
