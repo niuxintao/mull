@@ -18,7 +18,7 @@ class ASTVisitor : public clang::RecursiveASTVisitor<ASTVisitor> {
   mull::FilePathFilter &filePathFilter;
   mull::MutatorKindSet mutatorKindSet;
   bool shouldSkipCurrentFunction;
-
+  std::unordered_map<MutatorKind, clang::Expr *> skipExpressions;
 public:
   explicit ASTVisitor(mull::Diagnostics &diagnostics, mull::ThreadSafeASTUnit &astUnit,
                       mull::SingleASTUnitMutations &singleUnitMutations,

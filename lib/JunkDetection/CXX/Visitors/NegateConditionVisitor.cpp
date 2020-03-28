@@ -14,6 +14,13 @@ bool NegateConditionVisitor::VisitUnaryOperator(
   return true;
 }
 
+bool NegateConditionVisitor::VisitExpr(clang::Expr *expr) {
+  if (clang::DeclRefExpr *declRefExpr = clang::dyn_cast<clang::DeclRefExpr>(expr)) {
+    visitor.visitRangeWithASTExpr(declRefExpr);
+  }
+  return true;
+}
+
 clang::Expr *NegateConditionVisitor::foundMutant() {
   return visitor.getMatchingASTNode();
 }

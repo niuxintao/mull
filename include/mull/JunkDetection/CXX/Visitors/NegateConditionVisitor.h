@@ -12,7 +12,9 @@ class NegateConditionVisitor
 public:
   NegateConditionVisitor(const VisitorParameters &parameters);
 
+  bool VisitExpr(clang::Expr *expr);
   bool VisitUnaryOperator(clang::UnaryOperator *unaryOperator);
+
   clang::Expr *foundMutant();
 
 private:
