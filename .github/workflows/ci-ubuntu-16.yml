@@ -5,13 +5,13 @@ env:
   LLVM_RELEASE: "8.0"
 
 on:
-  pull_request:
+#  pull_request:
   push:
     branches:
-      - master
-  release:
-    types:
-      - created
+      - disablethething
+#  release:
+#    types:
+#      - created
 
 jobs:
   test:
