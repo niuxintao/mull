@@ -1,6 +1,9 @@
 #include "mull/Reporters/DiffReporter.h"
 #include "mull/Diagnostics/Diagnostics.h"
+#include "mull/Reporters/ASTSourceInfoProvider.h"
 #include "mull/Result.h"
+#include <clang/AST/Expr.h>
+#include <clang/Lex/Lexer.h>
 #include <git2.h>
 #include <mull/Reporters/SourceManager.h>
 #include <set>
@@ -26,15 +29,18 @@ static int diff_callback(const git_diff_delta *delta, const git_diff_hunk *hunk,
   }
 
   if (line->origin == GIT_DIFF_LINE_HUNK_HDR) {
-//    std::string hunkContext();
+    //    std::string hunkContext();
     std::stringstream headerStream;
-    headerStream << "@@ -" << hunk->old_start << "," << hunk->old_lines << " +" << hunk->new_start << "," << hunk->new_lines << " @@\n";
+    headerStream << "@@ -" << hunk->old_start << "," << hunk->old_lines << " +" << hunk->new_start
+                 << "," << hunk->new_lines << " @@\n";
     std::string header = headerStream.str();
     fwrite(header.c_str(), 1, header.size(), fp);
     fwrite(hunk->header, 1, hunk->header_len, fp);
-//    printf("%d %d %d %d %zu %s\n", hunk->old_start, hunk->old_lines, hunk->new_start, hunk->new_lines, hunk->header_len, hunk->header);
+    //    printf("%d %d %d %d %zu %s\n", hunk->old_start, hunk->old_lines, hunk->new_start,
+    //    hunk->new_lines, hunk->header_len, hunk->header);
     // @@ -4,4 +4,4 @@ num1
-//    printf("--->>>> %s %c %d %d\n", line->content, line->origin, line->old_lineno, line->new_lineno);
+    //    printf("--->>>> %s %c %d %d\n", line->content, line->origin, line->old_lineno,
+    //    line->new_lineno);
     return 0;
   }
 
@@ -48,7 +54,8 @@ static int diff_callback(const git_diff_delta *delta, const git_diff_hunk *hunk,
   return 0;
 }
 
-DiffReporter::DiffReporter(Diagnostics &diagnostics) : diagnostics(diagnostics) {
+DiffReporter::DiffReporter(Diagnostics &diagnostics, SourceInfoProvider &sourceInfoProvider)
+    : diagnostics(diagnostics), sourceInfoProvider(sourceInfoProvider) {
   this->diagnostics.info("hello");
   git_libgit2_init();
 }
@@ -59,6 +66,37 @@ DiffReporter::~DiffReporter() {
 
 static bool mutantSurvived(const ExecutionStatus &status) {
   return status == ExecutionStatus::Passed;
+}
+
+static std::vector<SourceLocation> locationsBefore(SourceManager &sourceManager,
+                                                   const SourceLocation &mutantLocation) {
+  std::vector<SourceLocation> locations;
+  size_t before = std::max(1, mutantLocation.line - 3);
+  for (int i = before; i < mutantLocation.line; i++) {
+    locations.emplace_back(mutantLocation.unitDirectory,
+                           mutantLocation.unitFilePath,
+                           mutantLocation.directory,
+                           mutantLocation.filePath,
+                           mutantLocation.line - i,
+                           mutantLocation.column);
+  }
+  return locations;
+}
+
+static std::vector<SourceLocation> locationsAfter(SourceManager &sourceManager,
+                                                  const SourceLocation &mutantLocation) {
+  std::vector<SourceLocation> locations;
+  size_t before =
+      std::min(sourceManager.getNumberOfLines(mutantLocation), size_t(mutantLocation.line + 3));
+  for (int i = before; i < mutantLocation.line; i++) {
+    locations.emplace_back(mutantLocation.unitDirectory,
+                           mutantLocation.unitFilePath,
+                           mutantLocation.directory,
+                           mutantLocation.filePath,
+                           mutantLocation.line + i,
+                           mutantLocation.column);
+  }
+  return locations;
 }
 
 void DiffReporter::reportResults(const Result &result, const Metrics &metrics) {
@@ -76,11 +114,41 @@ void DiffReporter::reportResults(const Result &result, const Metrics &metrics) {
     if (sourceLocation.isNull()) {
       continue;
     }
+    std::stringstream beforeStream;
+    for (SourceLocation &location : locationsBefore(sourceManager, sourceLocation)) {
+      beforeStream << sourceManager.getLine(location);
+    }
+    std::stringstream afterStream;
+    for (SourceLocation &location : locationsAfter(sourceManager, sourceLocation)) {
+      afterStream << sourceManager.getLine(location);
+    }
+    std::string mutation = sourceManager.getLine(sourceLocation);
+    std::stringstream oldStream;
+    oldStream << beforeStream.str() << mutation << afterStream.str();
+    mutation[sourceLocation.column] = '-';
+    std::stringstream newSteram;
+    newSteram << beforeStream.str() << mutation << afterStream.str();
+
+    std::string oldContent = oldStream.str();
+    std::string newContent = newSteram.str();
+
+    sourceInfoProvider.getSourceInfo(diagnostics, mutant);
+
+//    const clang::BinaryOperator *const binop = llvm::dyn_cast<clang::BinaryOperator>(stmt);
+//    binop->getOperatorLoc().
+
+//    auto info = sourceInfoProvider.getSourceInfo(diagnostics, mutant);
+//    printf("%d %d %d %d\n", info.beginLine, info.beginColumn, info.endLine, info.endColumn);
+
     git_patch *patch;
-    const char *old = "num1\nnum2\nnum3\nnum4\nnum5\nnum6\nnum7";
-    const char *new_ = "num1\nnum2\nnum3\nnum4\nnum5\nnum6\nnew7";
-    git_patch_from_buffers(
-        &patch, old, strlen(old), "hello.c", new_, strlen(new_), "hello.c", nullptr);
+    git_patch_from_buffers(&patch,
+                           oldContent.c_str(),
+                           oldContent.size(),
+                           sourceLocation.unitFilePath.c_str(),
+                           newContent.c_str(),
+                           newContent.size(),
+                           sourceLocation.unitFilePath.c_str(),
+                           nullptr);
 
     git_patch_print(patch, diff_callback, nullptr);
 

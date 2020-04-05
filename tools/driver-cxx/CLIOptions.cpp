@@ -304,7 +304,7 @@ std::vector<std::unique_ptr<Reporter>> ReportersCLIOptions::reporters(ReporterPa
           new mull::MutationTestingElementsReporter(diagnostics, directory, name, provider));
     } break;
     case ReporterKind::Diff: {
-      reporters.emplace_back(new mull::DiffReporter(diagnostics));
+      reporters.emplace_back(new mull::DiffReporter(diagnostics, provider));
     } break;
     }
   }

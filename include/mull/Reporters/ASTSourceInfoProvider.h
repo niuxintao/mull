@@ -1,5 +1,9 @@
 #pragma once
 
+namespace clang {
+class Stmt;
+}
+
 namespace mull {
 
 struct MutationPointSourceInfo {
@@ -17,6 +21,8 @@ class SourceInfoProvider {
 public:
   virtual MutationPointSourceInfo getSourceInfo(Diagnostics &diagnostics,
                                                 MutationPoint *mutationPoint) = 0;
+  virtual const clang::Stmt *getMutationStatement(Diagnostics &diagnostics,
+                                                  MutationPoint *mutationPoint) = 0;
 };
 
 class ASTSourceInfoProvider : public SourceInfoProvider {
@@ -25,6 +31,8 @@ public:
   explicit ASTSourceInfoProvider(ASTStorage &astStorage);
   MutationPointSourceInfo getSourceInfo(Diagnostics &diagnostics,
                                         MutationPoint *mutationPoint) override;
+  const clang::Stmt *getMutationStatement(Diagnostics &diagnostics,
+                                          MutationPoint *mutationPoint) override;
 
 private:
   ASTStorage &astStorage;

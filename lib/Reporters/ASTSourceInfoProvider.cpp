@@ -17,16 +17,7 @@ MutationPointSourceInfo ASTSourceInfoProvider::getSourceInfo(Diagnostics &diagno
   MutationPointSourceInfo info = MutationPointSourceInfo();
   clang::SourceRange sourceRange;
 
-  const SourceLocation &sourceLocation = mutationPoint->getSourceLocation();
-  const std::string &sourceFile = sourceLocation.unitFilePath;
-
-  const ASTMutation &astMutation =
-      astStorage.getMutation(sourceFile,
-                             mutationPoint->getMutator()->mutatorKind(),
-                             sourceLocation.line,
-                             sourceLocation.column);
-
-  const clang::Stmt *const mutantASTNode = astMutation.stmt;
+  const clang::Stmt *const mutantASTNode = getMutationStatement(diagnostics, mutationPoint);
 
   ThreadSafeASTUnit *astUnit = astStorage.findAST(mutationPoint);
 
@@ -59,5 +50,31 @@ MutationPointSourceInfo ASTSourceInfoProvider::getSourceInfo(Diagnostics &diagno
   info.endColumn = sourceManager.getExpansionColumnNumber(sourceLocationEndActual);
   info.endLine = sourceManager.getExpansionLineNumber(sourceLocationEndActual, nullptr);
 
+  const clang::BinaryOperator *const binop = llvm::dyn_cast<clang::BinaryOperator>(mutantASTNode);
+
+  clang::SourceLocation binopEndActual = clang::Lexer::getLocForEndOfToken(
+      binop->getOperatorLoc(), 0, sourceManager, astContext.getLangOpts());
+
+  printf("%d %d %d %d\n",
+         sourceManager.getExpansionColumnNumber(binop->getOperatorLoc()),
+         sourceManager.getExpansionLineNumber(binop->getOperatorLoc(), nullptr),
+         sourceManager.getExpansionColumnNumber(binopEndActual),
+         sourceManager.getExpansionLineNumber(binopEndActual, nullptr));
+
   return info;
+}
+
+const clang::Stmt *ASTSourceInfoProvider::getMutationStatement(Diagnostics &diagnostics,
+                                                               MutationPoint *mutationPoint) {
+  const SourceLocation &sourceLocation = mutationPoint->getSourceLocation();
+  const std::string &sourceFile = sourceLocation.unitFilePath;
+
+  const ASTMutation &astMutation =
+      astStorage.getMutation(sourceFile,
+                             mutationPoint->getMutator()->mutatorKind(),
+                             sourceLocation.line,
+                             sourceLocation.column);
+
+  const clang::Stmt *const mutantASTNode = astMutation.stmt;
+  return mutantASTNode;
 }
