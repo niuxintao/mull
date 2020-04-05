@@ -1,5 +1,6 @@
 #include "CLIOptions.h"
 #include <mull/Mutators/Mutator.h>
+#include <mull/Reporters/DiffReporter.h>
 #include <mull/Reporters/IDEReporter.h>
 #include <mull/Reporters/MutationTestingElementsReporter.h>
 #include <mull/Reporters/SQLiteReporter.h>
@@ -273,6 +274,7 @@ static std::vector<ReporterDefinition> reporterOptions({
     { "Elements",
       "Generates mutation-testing-elements compatible JSON file",
       ReporterKind::Elements },
+    { "Diff", "Prints diffs", ReporterKind::Diff },
 });
 
 ReportersCLIOptions::ReportersCLIOptions(Diagnostics &diagnostics, list<ReporterKind> &parameter)
@@ -300,6 +302,9 @@ std::vector<std::unique_ptr<Reporter>> ReportersCLIOptions::reporters(ReporterPa
     case ReporterKind::Elements: {
       reporters.emplace_back(
           new mull::MutationTestingElementsReporter(diagnostics, directory, name, provider));
+    } break;
+    case ReporterKind::Diff: {
+      reporters.emplace_back(new mull::DiffReporter(diagnostics));
     } break;
     }
   }

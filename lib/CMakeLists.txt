@@ -98,13 +98,15 @@ set(mull_sources
   Reporters/IDEReporter.cpp
   Reporters/MutationTestingElementsReporter.cpp
   Reporters/SourceManager.cpp
+  Reporters/DiffReporter.cpp
 
   TestFrameworks/NativeTestRunner.cpp
 
   Filters/JunkMutationFilter.cpp
   Filters/NoDebugInfoFilter.cpp
   Filters/FilePathFilter.cpp
-  JunkDetection/CXX/Visitors/ScalarValueVisitor.cpp)
+  JunkDetection/CXX/Visitors/ScalarValueVisitor.cpp
+  )
 
 set(MULL_INCLUDE_DIR ${MULL_SOURCE_DIR}/include/mull)
 
@@ -172,6 +174,7 @@ target_link_libraries(mull
   irm
   mull-cxx-mutators
   Diagnostics
+  git2
   )
 target_include_directories(mull PUBLIC
   ${MULL_INCLUDE_DIRS}

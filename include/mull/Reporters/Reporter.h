@@ -5,7 +5,7 @@ namespace mull {
 class Result;
 class Metrics;
 
-enum class ReporterKind { IDE, SQLite, Elements };
+enum class ReporterKind { IDE, SQLite, Elements, Diff };
 
 class Reporter {
 public:
